@@ -54,7 +54,10 @@ def process_document(file_bytes: bytes, filename: str) -> dict:
         result["extracted_data"] = extracted_data
         
         # PASO 3: Generación de archivo
-        output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".tmp")
+        if os.environ.get("VERCEL") or not os.access(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), os.W_OK):
+            output_dir = "/tmp"
+        else:
+            output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".tmp")
         
         if destination_format == "excel":
             output_path = generate_excel(extracted_data, document_type, output_dir)
@@ -136,7 +139,10 @@ def process_text_document(file_bytes: bytes, filename: str) -> dict:
         result["extracted_data"] = extracted_data
         
         # PASO 4: Generación de archivo
-        output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".tmp")
+        if os.environ.get("VERCEL") or not os.access(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), os.W_OK):
+            output_dir = "/tmp"
+        else:
+            output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".tmp")
         
         if destination_format == "excel":
             output_path = generate_excel(extracted_data, document_type, output_dir)

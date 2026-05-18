@@ -19,8 +19,11 @@ from architecture.orchestrator import process_document, process_text_document, c
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 CORS(app)
 
-# Crear directorio temporal
-os.makedirs(".tmp", exist_ok=True)
+import tempfile
+
+# Usar /tmp en entornos serverless (Vercel), .tmp local en desarrollo
+TEMP_DIR = "/tmp" if os.environ.get("VERCEL") or not os.access(".", os.W_OK) else os.path.join(os.path.dirname(os.path.abspath(__file__)), ".tmp")
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp", "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv"}
 IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
@@ -94,7 +97,7 @@ def api_process():
 @app.route("/api/download/<filename>")
 def download_file(filename):
     """Descarga un archivo generado y programa su eliminación."""
-    filepath = os.path.join(".tmp", filename)
+    filepath = os.path.join(TEMP_DIR, filename)
     
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
